@@ -1,0 +1,193 @@
+extends layout
+
+block content
+    h1 #{title}
+    form(method = '', action='#')
+        .form-group.row
+            label.col-sm-2.col-form-label(for='asin') ASIN
+            .col-sm-10
+                input#staticEmail.form-control-plaintext(name='asin',type='text', readonly='', value= product.asin)
+        .form-group.row
+            label.col-sm-2.col-form-label(for='status') Status
+            .col-sm-10
+                input#staticEmail.form-control-plaintext(name='status',type='text', readonly='', value= product.status)
+        .form-group.row
+            label.col-sm-2.col-form-label(for='seller') Seller
+            .col-sm-10
+                input#staticEmail.form-control-plaintext(name='seller',type='text', readonly='', value= product.seller)
+        .form-group.row
+                label.col-sm-2.col-form-label(for='price') Price
+                .col-sm-10
+                    input#inputPassword.form-control(name='price',type='text', value= product.price, readonly='')            
+
+    
+    .container 
+        #template.form-group
+            label(for='htmltemplate') Html code: 
+
+            textarea#htmltemplate.form-control(rows='15')
+                // Start Template FreeAuctionDesigns.com Copyright 2008 All Rights Reserved.
+                table(border='0', width='100%', cellspacing='0', cellpadding='0')
+                    tbody
+                        tr
+                            td(valign='top', bgcolor='#CFD1CF')
+                                div(align='center')
+                                    table(border='0', width='1000', cellspacing='0', cellpadding='0')
+                                        tbody
+                                            tr
+                                                td
+                                                    table#Table_01(width='1000', height='412', border='0', cellpadding='0', cellspacing='0')
+                                                        tbody
+                                                            tr
+                                                                td(colspan='3')
+                                                                    img(src='https://templates.freeauctiondesigns.com/big_sale/frameimages_01.jpg', width='1000', height='245', alt='')
+                                                            tr
+                                                                td(background='https://templates.freeauctiondesigns.com/big_sale/frameimages_02.jpg')
+                                                                    img(src='https://templates.freeauctiondesigns.com/big_sale/frameimages_02.jpg', width='18', height='116', alt='')
+                                                                td(bgcolor='#FFFFFF', valign='top')
+                                                                    table(border='0', width='964', cellspacing='4', cellpadding='4')
+                                                                        tbody
+                                                                            tr
+                                                                                td
+                                                                                    p(align='center')
+                                                                                        // BODY
+                                                                                        style.
+                                                                                            .temp-content {
+                                                                                            width: 700px;
+                                                                                            text-align: left;
+                                                                                            }
+                                                                                            #imgsort {
+                                                                                            list-style-type: none;
+                                                                                            margin: 0;
+                                                                                            padding: 0;
+                                                                                            }
+                                                                                            #imgsort li {
+                                                                                            margin: 6px;
+                                                                                            padding: 1px;
+                                                                                            float: left;
+                                                                                            width: 100px;
+                                                                                            height: 90px;
+                                                                                            text-align: center;
+                                                                                            }
+                                                                                            .img-gall {
+                                                                                            border: 1px solid #7C7C7C;
+                                                                                            box-shadow: 0 3px 4px rgba(0, 0, 0, 0.5);
+                                                                                            }
+                                                                                    center
+                                                                                        #templatebody.bodycolumn
+                                                                                            // TITLE
+                                                                                            #templatetitle.tempwidget
+                                                                                                .temp-content
+                                                                                                    center
+                                                                                                        #templatetitletxt
+                                                                                                            h1
+                                                                                                                strong #{product.title}
+                                                                                                            #eJOY__extension_root(style='all: unset;')  
+                                                                                            // TITLE CLOSE
+                                                                                            // IMAGES
+                                                                                            #templateimage.tempwidget
+                                                                                                .temp-contenti
+                                                                                                    #templateimages
+                                                                                                        div(style='width:760px;margin-bottom:20px;')
+                                                                                                            img.img-gall(style='display: block; margin-left: auto; margin-right: auto;width: 100%;', src=product.image)
+                                                                                                            br
+                                                                                                            br
+                                                                                            // IMAGES CLOSE
+                                                                                            // DESC
+                                                                                            #templatedesc.tempwidget
+                                                                                                .temp-content
+                                                                                                    center
+                                                                                                        img(src='https://templates.freeauctiondesigns.com/big_sale/description.gif', border='0')
+                                                                                                    br
+                                                                                                    #templatedesctxt
+                                                                                                        p  
+                                                                                                        h3
+                                                                                                            b Product Features:
+                                                                                                        ul
+                                                                                                            each ab in about
+                                                                                                                li(style='font-family:arial,helvetica,sans-serif;font-size:16px;margin-bottom: 4px;line-height:1.3')=ab
+                                                                                                        h3
+                                                                                                            b Product Description:
+                                                                                                        p(style='font-size:16px;font-family:arial,helvetica,sans-serif;margin-bottom: 4px;line-height:1.3')=description
+                                                                                                        div  
+                                                                                                        p  
+                                                                                            // DESC CLOSE
+                                                                                            // SHIP
+                                                                                            #templateship.tempwidget
+                                                                                                .temp-content
+                                                                                                    center
+                                                                                                        img(src='https://templates.freeauctiondesigns.com/big_sale/shipping.gif', border='0')
+                                                                                                    br
+                                                                                                    #templateshiptxt
+                                                                                                        p
+                                                                                                            span(style='font-size:16px')
+                                                                                                                span(style='font-family:arial,helvetica,sans-serif')
+                                                                                                                    | We are always working hard to ensure your package arrives as soon as possible. Please understand that some factors like weather, high postal traffic, and the performance of shipping companies are outside of our control.
+                                                                                                        p
+                                                                                                            span(style='font-size:16px')
+                                                                                                                span(style='font-family:arial,helvetica,sans-serif')
+                                                                                                                    | We offer free shipping to the lower 48 states and ship within 2 business days of payment, usually sooner. We do not accept P.O. Boxes. Please provide a physical address.
+                                                                                                        p
+                                                                                                            span(style='font-size:16px')
+                                                                                                                span(style='font-family:arial,helvetica,sans-serif')
+                                                                                                                    | For shipping outside of the continental USA, we only use eBay's Global Shipping Program.The item is shipped to KY and then sent to the rest of the world. International customers are responsible for all duties and taxes. Continue to check out in order to calculate costs for shipping the item to your country. Messages regarding eBay's Global Shipping Program MUST be directed at eBay EXCLUSIVELY
+                                                                                                        #eJOY__extension_root(style='all: unset;')  
+                                                                                            // SHIP CLOSE
+                                                                                            // PAY
+                                                                                            #templatepay.tempwidget
+                                                                                                .temp-content
+                                                                                                    center
+                                                                                                        img(src='https://templates.freeauctiondesigns.com/big_sale/payment.gif', border='0')
+                                                                                                    br
+                                                                                                    #templatepaytxt
+                                                                                                        p
+                                                                                                            span(style='font-size:16px')
+                                                                                                                span(style='font-family:arial,helvetica,sans-serif')
+                                                                                                                    span(style='background-color:rgb(255, 255, 255); color:rgb(0, 0, 0)') We accept PayPal
+                                                                                                                    br
+                                                                                                                    span(style='background-color:rgb(255, 255, 255); color:rgb(0, 0, 0)')
+                                                                                                                        | Items can be returned for exchange or full refund within 30 days from the date you receive your merchandise. We are not responsible for any purchase after this 30-day period.
+                                                                                                        #eJOY__extension_root(style='all: unset;')  
+                                                                                            // PAY CLOSE
+                                                                                            // FOOT
+                                                                                            #templatefoot.tempwidget
+                                                                                                .temp-content
+                                                                                                    center
+                                                                                                        img(src='https://templates.freeauctiondesigns.com/big_sale/haveaniceday.gif', border='0')
+                                                                                            // FOOT CLOSE
+                                                                                            // BODY END
+                                                                                            // IMAGEOP
+                                                                                            // 1,0,1,1,#7C7C7C,1,3,44f10d03
+                                                                                            // IMAGEOP CLOSE
+                                                                                            // IMAGE LIST
+                                                                                            // 10x-Kitchen-Room-Cabinet-Hinge-Closet-Indoor-Wardrobe-LED-Light-Sensor-SystemQH-1.jpg
+                                                                                            // IMAGE LIST CLOSE
+                                                                                            // TEMPLATE
+                                                                                            // big_sale
+                                                                                            // TEMPLATE CLOSE
+                                                                                            // WIDGETS
+                                                                                            // 0
+                                                                                            // WIDGETS CLOSE
+                                                                                            // ISHOWCASE
+                                                                                            // undefined,undefined
+                                                                                            // ISHOWCASE CLOSE
+                                                                                            p
+                                                                td(background='https://templates.freeauctiondesigns.com/big_sale/frameimages_04.jpg')
+                                                                    img(src='https://templates.freeauctiondesigns.com/big_sale/frameimages_04.jpg', width='18', height='116', alt='')
+                                                            tr
+                                                                td(colspan='3')
+                                                                    img(src='https://templates.freeauctiondesigns.com/big_sale/frameimages_05.gif', width='1000', height='51', alt='')
+                        tr
+                            td(valign='top')
+                                table(border='0', width='100%', cellspacing='5', cellpadding='5')
+                                    tbody
+                                        tr
+                                            td
+                                                p(align='center')
+                                                    // FreeAuctionDesigns.com Showcase for eBay Start
+                                                #gallerydiv(style='width:100%;text-align:center')
+                                                    br
+                // End Template FreeAuctionDesigns.com Copyright 2008 All Rights Reserved.
+
+
+                

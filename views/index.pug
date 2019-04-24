@@ -1,0 +1,23 @@
+extends layout
+
+block content
+    h1 #{title}
+    div  Total Product: #{total}
+    br
+    br
+    ul.list-group
+        each product in products
+            div.shadow-sm.p-3.mb-2.bg-white.rounded 
+                li.media
+                    img.mr-3(src=product.image,height='64', width='64')
+                    .media-body
+                        a.mt-0(href="/product/"+product.asin)= product.title
+                        div ASIN: #{product.asin} 
+                        div Price: #{product.price} &emsp;&emsp;&emsp;&emsp;&emsp;&emsp; #{product.status}
+                    .btn-toolbar.float-right(role='toolbar', aria-label='Toolbar with button groups')
+                        .btn-group.mr-4(role='group', aria-label='First group')
+                            a.btn.btn-danger.delete-product.float-right(href="", data-id=product.asin) Delete
+                        .btn-group(role='group', aria-label='Second group')
+                            a.btn.btn-primary.float-right(href="https://www.amazon.com/dp/"+product.asin) Buy It
+
+

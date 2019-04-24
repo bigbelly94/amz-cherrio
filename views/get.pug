@@ -1,0 +1,16 @@
+extends layout
+
+block content
+    h1 #{title}
+    form(action='/products/get', method='POST')
+        .form-group
+            label(for='title') TITLE
+            input.form-control(type='text', placeholder='Enter Title', name="title", id="title")
+        .form-group
+            label(for='asin') ASIN
+            input.form-control(type='text', placeholder='Enter ASIN', name="asin", id="asin")
+        button.btn.btn-primary(type='submit') Get Product
+
+
+        
+        
