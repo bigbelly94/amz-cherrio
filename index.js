@@ -160,8 +160,8 @@ async function getProductDetail (asin) {
         about.push($(arr[i]).text().trim());
     };
 
-    let description = $("#productDescription, productDescription_feature_div");
-    description = !_.isEmpty(description) ? description.html.trim : "";
+    let description = $('div[id="productDescription"]');
+    description = !_.isEmpty(description) ? $(description[0]).html().trim() : "";
 
     return {
         price,
