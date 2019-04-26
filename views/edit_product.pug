@@ -26,6 +26,10 @@ block content
                 label.col-sm-2.col-form-label(for='price') Price
                 .col-sm-10
                     input#inputPassword.form-control(name='price',type='text', value= product.price)
+        .form-group.row
+                label.col-sm-2.col-form-label(for='promo') Promo
+                .col-sm-10
+                    input#inputPassword.form-control(name='promo',type='text', value= product.isPromo)        
                     
 
         button.btn.btn-primary(type='submit') Submit

@@ -9,6 +9,9 @@ block content
         .form-group
             label(for='asin') ASIN
             input.form-control(type='text', placeholder='Enter ASIN', name="asin", id="asin")
+        .form-check
+            input.form-check-input(type='checkbox', id='promo',name='promo')
+            label.form-check-label(for='promo') Is promo?
         button.btn.btn-primary(type='submit') Get Product
 
 

@@ -20,6 +20,10 @@ const productSchema = mongoose.Schema({
   date: {
     type: Date,
     default: Date.now
+  },
+  isPromo: {
+    type : Boolean,
+    default: false
   }
 });
 
