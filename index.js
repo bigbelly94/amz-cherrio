@@ -7,6 +7,7 @@ const Product = require('./models/product');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
 const puppeteer = require('puppeteer');
+const nodemailer = require('nodemailer');
 
 const app = express();
 
@@ -218,8 +219,11 @@ async function sendEmail(subject, price, cprice, asin)
         from : 'd.huyb94@gmail.com',
         to: 'd.huyb94@gmail.com',
         subject : subject,
-        text : `ASIN: ${asin }, Giá cũ: ${price}, Giá mới: ${cprice}
-        Link san pham: https://www.amazon.com/dp/${asin }`
+        text : `ASIN: ${asin }
+        Giá cũ: ${price}
+        Giá mới: ${cprice}
+        Link amazon: https://www.amazon.com/dp/${asin }
+        Link san pham: http://www.amaget.online/product/${asin }`
     }
     transporter.sendMail(mailOptions, function(err, info){
         if(err)
@@ -237,6 +241,8 @@ async function sendEmail(subject, price, cprice, asin)
 var timer = setInterval(async function() {
     return await checkPrice();
 }, 3600000);
+
+
 
 //Check Promo Code
 async function checkPromoCode () {
