@@ -3,6 +3,11 @@ extends layout
 block content
     h1 #{title}
     div  Total Product: #{total}
+        .btn-toolbar.float-right(role='toolbar', aria-label='Toolbar with button groups')
+            .btn-group.mr-4(role='group', aria-label='First group')
+                a.btn.btn-success.float-right.check-promo Check Promo
+            .btn-group(role='group', aria-label='Second group')
+                a.btn.btn-info.float-right.check-price Check Price
     br
     br
     ul.list-group
@@ -12,7 +17,9 @@ block content
                     img.mr-3(src=product.image,height='64', width='64')
                     .media-body
                         a.mt-0(href="/product/"+product.asin)= product.title
-                        div ASIN: #{product.asin} 
+                        div ASIN: #{product.asin} &emsp;&emsp;
+                            if product.isPromo
+                                span.badge.badge-success Promo
                         div Price: #{product.price} &emsp;&emsp;&emsp;&emsp;&emsp;&emsp; #{product.status}
                     .btn-toolbar.float-right(role='toolbar', aria-label='Toolbar with button groups')
                         .btn-group.mr-4(role='group', aria-label='First group')

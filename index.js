@@ -51,8 +51,8 @@ app.get('/products/get', (req, res) => {
 
 //POST Submit Route
 app.post('/products/get',(req, res) => {
-    let asin = req.body.asin;
-    let title = req.body.title;
+    let asin = req.body.asin.trim();
+    let title = req.body.title.trim();
     let promo = req.body.promo;
     Product.findOne({asin}, (err, product) => {
         if (_.isEmpty(product)) {
@@ -87,7 +87,7 @@ app.post('/products/get',(req, res) => {
 })
 
 
-//Get Single Product
+//Get Single Product Route
 app.get('/product/:asin', (req, res) => {
     const asin = req.params.asin;
     Product.findOne({asin}, (err, product) => {
@@ -118,7 +118,7 @@ app.post('/product/:asin', (req, res) =>{
     });
 });
 
-//Delete Product
+//Delete Product Route
 app.delete('/product/:asin',(req, res) => {
     Product.deleteOne({asin: req.params.asin}, (err) => {
         if(err){
@@ -127,6 +127,20 @@ app.delete('/product/:asin',(req, res) => {
         res.send('Success');
     });
 });
+
+//Check Price Route
+app.get('/products/checkprice',(req, res) => {
+    (async () => {
+        await checkPrice();
+    })()
+})
+
+//Check Promo Route
+app.get('/products/checkpromo',(req, res) => {
+    (async () => {
+        await checkPromoCode();
+    })()
+})
 
 //Func get Product Detail
 async function getProductDetail (asin) {
@@ -237,349 +251,459 @@ async function sendEmail(subject, price, cprice, asin)
     });
 };
 
+//Check Promo Code
+async function checkPromoCode () {
+    //Initial
+    var productsPromo = await Product.find({ isPromo: true });
+    if (!_.isEmpty(productsPromo)){
+        browser = await puppeteer.launch({
+            headless: false,
+            defaultViewport: false
+        });
+        page = await browser.newPage();
+    
+        // khong load img, fond
+        await page.setRequestInterception(true);
+        page.on('request', (request) => {
+            if (request.resourceType() === 'image' || request.resourceType() === 'font') {
+                request.abort();
+            } else {
+                request.continue();
+            }
+        });
+        //Set Cookies
+        let cookiesArr =  [
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2187597358,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "a-ogbcbff",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "1",
+                "id": 1
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2187164518,
+                "hostOnly": false,
+                "httpOnly": true,
+                "name": "at-main",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": true,
+                "session": false,
+                "storeId": "0",
+                "value": "Atza|IwEBID9WDK6iaMYsTb6AVqdVaSU9r9ZugWjkHjLB6OQ0_GMCEeM6MAYrzVlc4u374jfcxlqix3iA8Kl7V1zjtkC64MU7TLhUGjHp0edH8bIEBvaUS5ZoMIYVnF4Z5zNTzOaOOPkid_cxDAYIPRZR3LltBVF3hoOH_ORowjON-GZz-djI5AfOtiAtfVlnELat25StTwj3Mn4xx2byKiEH9k4J022Pb3M0tjPFiNXp70gA4d2PcwStZsQFt4XB8mYGhEoPxlYJzzMI5jnnZDKOIzdO-XfOTUBGFPi3NhtyDHWNMqU2-KB0EppNEilubHfOhqSZXYLNBqbgA04Ww9f1N7WhlH64_47SxU4Eb4SZvyfrQB0_71POiK5BUH1peIcP4dv5y6K2-YwEgke3xWbxA4u4PHgO",
+                "id": 2
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2186201845,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "aws-priv",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "eyJ2IjoxLCJldSI6MCwic3QiOjB9",
+                "id": 3
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2187163300,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "lc-main",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "en_US",
+                "id": 4
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2187247995,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "s_dslv",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "1556182395226",
+                "id": 5
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 1988182395,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "s_nr",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "1556182395223-Repeat",
+                "id": 6
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2187330077,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "s_pers",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "%20s_fid%3D4256407EF069B474-0414F47A1EC010B0%7C1714030877666%3B%20s_dl%3D1%7C1556179877668%3B%20gpv_page%3DUS%253AAZ%253ASOA-overview-sell%7C1556179877676%3B%20s_ev15%3D%255B%255B%2527AZUSSOA-yaflyout%2527%252C%25271556178077693%2527%255D%255D%7C1714030877693%3B",
+                "id": 7
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 1986801149,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "s_vnum",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "1986801149381%26vn%3D2",
+                "id": 8
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2187164518,
+                "hostOnly": false,
+                "httpOnly": true,
+                "name": "sess-at-main",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": true,
+                "session": false,
+                "storeId": "0",
+                "value": "\"B5uj1ETgUyJ7uvgVweX52OoOoGRtyiSOWoxFfD6zydg=\"",
+                "id": 9
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2082787200,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "session-id",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "139-5561679-6623453",
+                "id": 10
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2186900431,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "session-id-eu",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "259-3854612-2148643",
+                "id": 11
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2082787200,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "session-id-time",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "2082787201l",
+                "id": 12
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2186900431,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "session-id-time-eu",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "2186900431l",
+                "id": 13
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2187164518,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "session-token",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "4Fcel5+B3ZNl1dzSuo1nOYdbFh9PLLtFdd9hxXGmznMdNZ8Bgvtqr/VAoRpgiztvfdT09WBgEW9P+Od/3Jpg3B82uzqNzp4DmYM53fkpj/+kcAbnO9xjnFQ08DzvPVQTX4kTE1yg2tEhaOfMRMW1QXfS+DSakNyNswYwZkhaXVQ4Asejrh2OkerScwkM7T9S5yWeoH1ozV0pIgpvhfq+Xv/xAq+2TWb9NBhG3ptlzYNS4zhlkxpzXZKYbdaoygbR6ceTWGmJoMMTz6idZjj/MLeRUkPKL86d",
+                "id": 14
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2186926647,
+                "hostOnly": false,
+                "httpOnly": true,
+                "name": "sid",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": true,
+                "session": false,
+                "storeId": "0",
+                "value": "\"xcOeCaeRHO3ywnZHBwwTyg==|EDPcQlWwL/xjeT8/elfkYKBBf8XkgGeLu8pWoHROyhM=\"",
+                "id": 15
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2187164518,
+                "hostOnly": false,
+                "httpOnly": true,
+                "name": "sst-main",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": true,
+                "session": false,
+                "storeId": "0",
+                "value": "Sst1|PQH3aW5WUfdW4yK3JxagMzduC-qLCB3XHOjLsA9EF3xSkyeMa9CUV-JlonzPJ0sDwcMeN2GyVCXlA6I03f52NrJiSMELhZ_8QTG2NW5SQwZiIM6r8M_9TazbYM87zK9bEMpJuD6ZN3ZoSfrAn-qsJvmxEzEbE23MB4yBETT0KDkw4eTSJ6htzsmPLBXO6R7cAC361gCdKwhLJha8QDxbTtHcIxMsqCkAEb7fq1fMh0hVaqmKQBZSGlsvctLJ5kKTbY4z0lxBpzR5PwI_ZSRRsl-Fa-RulA-dUlqgWdI_6mIqLZa4w3y1ExpLTYcftvgnpgQ712wSTm4r3ISQD1tGSdgwMA",
+                "id": 16
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2186900433,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "ubid-acbuk",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "259-6814295-7590727",
+                "id": 17
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2082787202,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "ubid-acbus",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "132-0890182-3045412",
+                "id": 18
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2082787200,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "ubid-main",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "132-0890182-3045412",
+                "id": 19
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 1870873713,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "unique_id",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "msh0PVqscLqxxk2TZU0e2QM2USIKzWhi",
+                "id": 20
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2187935146,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "UserPref",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "UJnxUhPqg7d3XX8tnqvpWwaq6uwLGjguSqBpnVK3itzt7dr44g9zsnaX7YY2WzRtPSVeI6nY6k7phLEEe/SekgoSCqhPfx9/scumsUKGFx13kOzQOdW9u3wd3rgih0UWwUYjmRaIZ+Yekqc8KJ34dwMnxJeYQOQ4aic6Nn26eABhccVto2BBbzhDoTn/2hAwzlUD8ys9Z/dwEJCpEUzschYy16+Z8J7yngSQMUA9Y5GsIiEocb3kBpe+ba8Ir+AtYDjxU1iq/RLAAJBKH2kEOb06RHHKycqx5P+pAqkQFNyV8ymF74WVoekdkHO3QykmKaj3IrV4RzzOHVXwihE4MjWQ9sCDEpe/A45LrYH1LnqOxAoYYcKwVRQhdZnbMPvlLq1rw3Y0+R2K8d8uKHo5+k3RtiD29t2UWa321rG/eXkhmOwDXd3iiAUOXVz/R/9OpexRnkWe014=",
+                "id": 21
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2187164518,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "x-main",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "\"9@0W6I4kxbRUOdEwB5dNtuSHuCM1FamUGcRS4CV997CvG6Lo@CKrM7el4dhwBvHc\"",
+                "id": 22
+            },
+            {
+                "domain": ".amazon.com",
+                "expirationDate": 2082787201,
+                "hostOnly": false,
+                "httpOnly": false,
+                "name": "x-wl-uid",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "1rEdRnAntQD2Hkg8tR34oW1Lv051BCs4hKtzkYjNKdGfhmovJVba6V+aFKC9CyBjmxah5a20QrbHDK7wLd6HmihPdLkb7jX4WtUwYt/RACY694SLOglSuLl5FpqF94NCsNNHENN5eoHw=",
+                "id": 23
+            },
+            {
+                "domain": "www.amazon.com",
+                "expirationDate": 2419066000,
+                "hostOnly": true,
+                "httpOnly": false,
+                "name": "amznacsleftnav-226d22cb-99de-4f15-a55e-8d259c3574db",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "1",
+                "id": 24
+            },
+            {
+                "domain": "www.amazon.com",
+                "expirationDate": 2184918119,
+                "hostOnly": true,
+                "httpOnly": false,
+                "name": "csm-hit",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "tb:s-PNKWHQAC4MV3HPE9XSMH|1556444519177&t:1556444519216&adb:adblk_no",
+                "id": 25
+            },
+            {
+                "domain": "www.amazon.com",
+                "expirationDate": 2188651277,
+                "hostOnly": true,
+                "httpOnly": false,
+                "name": "ld",
+                "path": "/",
+                "sameSite": "no_restriction",
+                "secure": false,
+                "session": false,
+                "storeId": "0",
+                "value": "AZUSSOA-yaflyout",
+                "id": 26
+            }
+            ];
+         
+        try {
+            for (let cookie of cookiesArr) {
+                await page.setCookie(cookie)
+            };
+            console.log('Session has been loaded in the browser'); 
+        } catch (error) {
+            console.log(error);
+        }
+        await page.goto('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart');
+        const status = await page.evaluate(() => {
+            return document.querySelector('div[id="sc-active-cart"]').innerText;
+        });
+        if (status.includes("Your Shopping Cart is empty.")){
+            console.log('Check Promo Code Starting...')
+            let i;
+            let len = productsPromo.length;
+            for (i = 0; i < len; i++) {
+                //Go to Product Page
+                const asin = productsPromo[i].asin;
+                console.log(`Check asin: ${asin}`);
+                await page.goto(`https://www.amazon.com/dp/${asin}`);
+                try {
+                    await page.click('input[id="add-to-cart-button"]');
+                    await page.goto('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart');
+                    await page.click('div[class="sc-proceed-to-checkout"]');
+                    await page.waitFor('span[id="shipToThisAddressButton"]');
+                    await page.click('span[id="shipToThisAddressButton"]');
+                    await page.waitFor('td[class="a-color-price a-size-medium a-text-right a-align-bottom aok-nowrap grand-total-price a-text-bold"]');
+                    const pricepromo = await page.evaluate(() => {
+                        return /[^$]+/g.exec(document.querySelector('td[class="a-color-price a-size-medium a-text-right a-align-bottom aok-nowrap grand-total-price a-text-bold"]').innerText)[0];
+                    });
+                    await page.waitFor('div[class="a-row a-spacing-micro payment-marketplace"], label[for="pm_gc_checkbox"]');
+                    const giftcard = await page.evaluate(() => {
+                        return /[0-9,\.]+/g.exec(document.querySelector('div[class="a-row a-spacing-micro payment-marketplace"], label[for="pm_gc_checkbox"]').innerText.trim())[0];
+                    });
+                    if (parseFloat(productsPromo[i].price) <= (parseFloat(pricepromo)+parseFloat(giftcard))) {
+                        await sendEmail('Code het han',undefined,undefined,asin);
+                    } 
+                    await page.goto('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart');
+                    await page.waitFor('span[class="a-size-small sc-action-delete"]');
+                    await page.click('span[class="a-size-small sc-action-delete"]');
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+            await browser.close();
+            return console.log('Check Promo Code Completed');
+        } else {
+            await browser.close();
+            return console.log('Clear Shopping Cart Before Checking...');
+        }
+    } else {
+        return console.log('Dont have any product come with promo code.');
+    }
+}
+
 //Set Time Check Price
 var timer = setInterval(async function() {
     return await checkPrice();
 }, 3600000);
 
-
-
-//Check Promo Code
-async function checkPromoCode () {
-    //Initial
-    var productsPromo = await Product.find({ isPromo: true });
-    browser = await puppeteer.launch({
-        headless: false,
-        defaultViewport: false
-    });
-    page = await browser.newPage();
-
-    // khong load img, css, fond
-    await page.setRequestInterception(true);
-    page.on('request', (request) => {
-        if (request.resourceType() === 'image' || request.resourceType() === 'font') {
-            request.abort();
-        } else {
-            request.continue();
-        }
-    });
-    // || request.resourceType() === 'stylesheet' || request.resourceType() === 'font'
-    //Set Cookies
-    let cookiesArr =  [
-    {
-        "domain": ".amazon.com",
-        "expirationDate": 2186877585.251874,
-        "hostOnly": false,
-        "httpOnly": true,
-        "name": "at-main",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": true,
-        "session": false,
-        "storeId": "0",
-        "value": "Atza|IwEBIBMp0-0e35DWNrKXs5rPB_OGxDekInJlO4-9T-nHIR9zMBJWc70OiTL2jf-RN2YhhkLfAUUh-kMfHmEhna6dyJZx1iwqos1PEBbiO1t_yBQv7LQu3Z5jCMXzKTw-ytgKVbH-j6UYxPX0F3x8edQg-tUue_Q_t6N0qmOFZ8GZKlJ7PxOVLkWA1DjcN-kIJAswZRRfTDvKP9g0Kb1UYthQyVYpHL-ZBQPQ-9h5e-WsqLnxgjdJVOHM9wyFbENwMw8Hvxxavs3T_DT_Qb-MjPmKglc-p1hjaoY287wclTd3i6grgNKYGwOzQdJMZgcfTuOo9481_YZh1z4SBVAiKyZQnBgGE5WVCKG4hJIkxDbiyxx2LKyQoNybPX5RXa4XbHjJbEnlKWC9g9FcGoMShusltk2e",
-        "id": 1
-    },
-    {
-        "domain": ".amazon.com",
-        "expirationDate": 1649744245.442081,
-        "hostOnly": false,
-        "httpOnly": false,
-        "name": "aws-priv",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": false,
-        "session": false,
-        "storeId": "0",
-        "value": "eyJ2IjoxLCJldSI6MCwic3QiOjB9",
-        "id": 2
-    },
-    {
-        "domain": ".amazon.com",
-        "expirationDate": 2082787201.429128,
-        "hostOnly": false,
-        "httpOnly": false,
-        "name": "i18n-prefs",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": false,
-        "session": false,
-        "storeId": "0",
-        "value": "USD",
-        "id": 3
-    },
-    {
-        "domain": ".amazon.com",
-        "expirationDate": 2082787200.548574,
-        "hostOnly": false,
-        "httpOnly": false,
-        "name": "lc-main",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": false,
-        "session": false,
-        "storeId": "0",
-        "value": "en_US",
-        "id": 4
-    },
-    {
-        "domain": ".amazon.com",
-        "expirationDate": 1649409199,
-        "hostOnly": false,
-        "httpOnly": false,
-        "name": "s_dslv",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": false,
-        "session": false,
-        "storeId": "0",
-        "value": "1554801199352",
-        "id": 5
-    },
-    {
-        "domain": ".amazon.com",
-        "expirationDate": 1986801199,
-        "hostOnly": false,
-        "httpOnly": false,
-        "name": "s_nr",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": false,
-        "session": false,
-        "storeId": "0",
-        "value": "1554801199349-New",
-        "id": 6
-    },
-    {
-        "domain": ".amazon.com",
-        "expirationDate": 1986801149,
-        "hostOnly": false,
-        "httpOnly": false,
-        "name": "s_vnum",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": false,
-        "session": false,
-        "storeId": "0",
-        "value": "1986801149381%26vn%3D1",
-        "id": 7
-    },
-    {
-        "domain": ".amazon.com",
-        "expirationDate": 2186877585.251919,
-        "hostOnly": false,
-        "httpOnly": true,
-        "name": "sess-at-main",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": true,
-        "session": false,
-        "storeId": "0",
-        "value": "\"BFN2dgXXbZmwY2KQMPKE2ZK6iqgj9BqK69BQG9IqJ0g=\"",
-        "id": 8
-    },
-    {
-        "domain": ".amazon.com",
-        "expirationDate": 2082787201.372154,
-        "hostOnly": false,
-        "httpOnly": false,
-        "name": "session-id",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": false,
-        "session": false,
-        "storeId": "0",
-        "value": "139-5561679-6623453",
-        "id": 9
-    },
-    {
-        "domain": ".amazon.com",
-        "expirationDate": 2082787201.372127,
-        "hostOnly": false,
-        "httpOnly": false,
-        "name": "session-id-time",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": false,
-        "session": false,
-        "storeId": "0",
-        "value": "2082787201l",
-        "id": 10
-    },
-    {
-        "domain": ".amazon.com",
-        "expirationDate": 2082787201.848783,
-        "hostOnly": false,
-        "httpOnly": false,
-        "name": "session-token",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": false,
-        "session": false,
-        "storeId": "0",
-        "value": "\"o7R4fvtBYb8fEbOd7Sp53SxV2QZPQBiOXgUvGGye729T7L29Nk5R/6etznLfp4ANRvuD9nSSkAm67DbFBuFBy8AX8wZGXTtC++XMN9J/I/A8WlH8d98cVJ6vz2Ka/QRRayPFeCEv8YZdJRYWofmtbC5BIz1FkwShrBpADvbRDAZ5v7ua8BXac3YjUIunjC/rDjW2RHjjwtDwQ1LllL62LvhdmvaKBDfJ6swqnNEUnlGAKJmhG3haglt36n+az8OOcJEECAjMRWg5dtWIs7fJ4g==\"",
-        "id": 11
-    },
-    {
-        "domain": ".amazon.com",
-        "expirationDate": 2186877585.251948,
-        "hostOnly": false,
-        "httpOnly": true,
-        "name": "sst-main",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": true,
-        "session": false,
-        "storeId": "0",
-        "value": "Sst1|PQHm-rMKKx-2jqaxJmWa7uK_C0RCbyFLwK1hOzNFwb2Z87HbY3-9niWNoKx_hQCJNU_xStu9KPmtLPMlbBd059LX9tXlJwmggunUOZVvhEj_DtFT196kGWDPp5MqANTngQtoPcirBlbyKYCMRBsSeNg9IaPca_AVjSFkK4p5mYT1Ho7YWiJJZFRT_mO6vPrt3Zc-iTGqxPAJ8ta4AIHfE8Q0ApDn7ZvWGdK6UhZ_t9wXwL6_ffMffIvc7mb_ST7ZYFPYB6sHu8WqlaJ8b3baYSc7H1p3nael_7Kb_Kct3g6zwyLuiIXCjQFf47e9ckfY6SKKcTRWRuaHpYMJKnbbvg4jYA",
-        "id": 12
-    },
-    {
-        "domain": ".amazon.com",
-        "expirationDate": 2082787202.378975,
-        "hostOnly": false,
-        "httpOnly": false,
-        "name": "ubid-acbus",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": false,
-        "session": false,
-        "storeId": "0",
-        "value": "132-0890182-3045412",
-        "id": 13
-    },
-    {
-        "domain": ".amazon.com",
-        "expirationDate": 2082787201.372041,
-        "hostOnly": false,
-        "httpOnly": false,
-        "name": "ubid-main",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": false,
-        "session": false,
-        "storeId": "0",
-        "value": "132-0890182-3045412",
-        "id": 14
-    },
-    {
-        "domain": ".amazon.com",
-        "expirationDate": 1870873713,
-        "hostOnly": false,
-        "httpOnly": false,
-        "name": "unique_id",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": false,
-        "session": false,
-        "storeId": "0",
-        "value": "msh0PVqscLqxxk2TZU0e2QM2USIKzWhi",
-        "id": 15
-    },
-    {
-        "domain": ".amazon.com",
-        "expirationDate": 2186877585.251827,
-        "hostOnly": false,
-        "httpOnly": false,
-        "name": "x-main",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": false,
-        "session": false,
-        "storeId": "0",
-        "value": "\"lCzqZ9wA?WRl6sHMhI6846RMj5PR71i9xJVVY1lBydbjcuIoIftgNKMMBd7BUM7Y\"",
-        "id": 16
-    },
-    {
-        "domain": ".amazon.com",
-        "expirationDate": 2082787202.184196,
-        "hostOnly": false,
-        "httpOnly": false,
-        "name": "x-wl-uid",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": false,
-        "session": false,
-        "storeId": "0",
-        "value": "1V2H5k7nIEk/0AfUSvTjWgU3q5LJ09fkDMtiA/uHLPB0l9kv7ZJrvqvtmjsvfUiF3TD6kb94ad1U4LmoHxAhNzVHPzzrNfGuliOMEqaBEkr7ssWf/fo/KNBoRmOpLo8GZEMBvqXo4rpk=",
-        "id": 17
-    },
-    {
-        "domain": "www.amazon.com",
-        "expirationDate": 2419066000,
-        "hostOnly": true,
-        "httpOnly": false,
-        "name": "amznacsleftnav-226d22cb-99de-4f15-a55e-8d259c3574db",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": false,
-        "session": false,
-        "storeId": "0",
-        "value": "1",
-        "id": 18
-    },
-    {
-        "domain": "www.amazon.com",
-        "expirationDate": 1616656718,
-        "hostOnly": true,
-        "httpOnly": false,
-        "name": "csm-hit",
-        "path": "/",
-        "sameSite": "no_restriction",
-        "secure": false,
-        "session": false,
-        "storeId": "0",
-        "value": "tb:s-TSM2W1AVM47DXDXD3PZH|1556176717875&t:1556176718486&adb:adblk_no",
-        "id": 19
-    }
-    ];
-     
-    try {
-        for (let cookie of cookiesArr) {
-            await page.setCookie(cookie)
-        };
-        console.log('Session has been loaded in the browser'); 
-    } catch (error) {
-        console.log(error);
-    }
-    await page.goto('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart');
-    const status = await page.evaluate(() => {
-        return document.querySelector('div[id="sc-active-cart"]').innerText;
-    });
-    if (status.includes("Your Shopping Cart is empty.")){
-        console.log('Check Promo Code Starting...')
-        let i;
-        let len = productsPromo.length;
-        for (i = 0; i < len; i++) {
-            //Go to Product Page
-            const asin = productsPromo[i].asin;
-            console.log(`Check asin: ${asin}`);
-            await page.goto(`https://www.amazon.com/dp/${asin}`);
-            // await page.waitFor('input[id="add-to-cart-button"]');
-            await page.click('input[id="add-to-cart-button"]');
-            // await page.waitFor(800);
-            await page.goto('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart');
-            // await page.waitFor('div[class="sc-proceed-to-checkout"]');
-            await page.click('div[class="sc-proceed-to-checkout"]');
-            await page.waitFor('td[class="a-color-price a-size-medium a-text-right a-align-bottom aok-nowrap grand-total-price a-text-bold"]');
-            const pricepromo = await page.evaluate(() => {
-                return /[^$]+/g.exec(document.querySelector('td[class="a-color-price a-size-medium a-text-right a-align-bottom aok-nowrap grand-total-price a-text-bold"]').innerText)[0];
-            });
-            if (parseFloat(productsPromo[i].price) < parseFloat(pricepromo)) {
-                await sendEmail('Code het han',asin);
-            } 
-            await page.goto('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart');
-            await page.waitFor('span[class="a-size-small sc-action-delete"]');
-            await page.click('span[class="a-size-small sc-action-delete"]');
-        }
-        await browser.close();
-        console.log('Check Promo Code Completed');
-    } else {
-        await browser.close();
-        console.log('Clear Shopping Cart Before Checking...');
-    }
-}
-
+//Set Time Check Price
+var timer = setInterval(async function() {
+    return await checkPromoCode();
+}, 7200000);
 
 //Listen on PORT
 app.listen(3000, () => {

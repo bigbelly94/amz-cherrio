@@ -15,6 +15,31 @@ $(document).ready(function(){
             });
         };
     });
+    $('.check-price').on('click', function(e){
+        $.ajax({
+            type: 'GET',
+            url: '/products/checkprice',
+            success: function(response){
+                window.location.href='/';
+            },
+            error: function(err){
+                console.log(err);
+            }
+        });
+    });
+
+    $('.check-promo').on('click', function(e){
+        $.ajax({
+            type: 'GET',
+            url: '/products/checkpromo',
+            success: function(response){
+                window.location.href='/';
+            },
+            error: function(err){
+                console.log(err);
+            }
+        });
+    });
 });
 
 
