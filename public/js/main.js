@@ -15,11 +15,13 @@ $(document).ready(function(){
             });
         };
     });
-    $('.check-price').on('click', function(e){
+    $('.check-price').on('click', function(){
+        alert("Updating....");
         $.ajax({
             type: 'GET',
             url: '/products/checkprice',
             success: function(response){
+                alert(response);
                 window.location.href='/';
             },
             error: function(err){
@@ -28,7 +30,8 @@ $(document).ready(function(){
         });
     });
 
-    $('.check-promo').on('click', function(e){
+    $('.check-promo').on('click', function(){
+        alert("Checking Promo Code");
         $.ajax({
             type: 'GET',
             url: '/products/checkpromo',

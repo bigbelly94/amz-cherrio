@@ -8,6 +8,9 @@ const bodyParser = require('body-parser');
 const _ = require('lodash');
 const puppeteer = require('puppeteer');
 const nodemailer = require('nodemailer');
+const expressValidator = require('express-validator');
+const flash = require('connect-flash');
+const session = require('express-session');
 
 const app = express();
 
@@ -21,7 +24,20 @@ mongoose.connect('mongodb://localhost/amz-cheerio')
 app.use(bodyParser.urlencoded({extended: false}));
 // parse application/json
 app.use(bodyParser.json());
-
+//Express Session Middleware
+app.use(session({
+    secret: 'keyboard cat',
+    resave: true,
+    saveUninitialized: true,
+}))
+//Express Messages Middleware
+app.use(flash());
+app.use(function (req, res, next){
+    res.locals.messages = require('express-messages')(req, res);
+    next();
+})
+//Express Validator Middleware
+app.use(expressValidator());
 
 //Load View Engine
 app.set('views', path.join(__dirname, 'views'));
@@ -54,38 +70,64 @@ app.post('/products/get',(req, res) => {
     let asin = req.body.asin.trim();
     let title = req.body.title.trim();
     let promo = req.body.promo;
-    Product.findOne({asin}, (err, product) => {
-        if (_.isEmpty(product)) {
-            (async() => {
-                let details = await getProductDetail(asin);
-                let product = new Product();
-                product.asin = asin;
-                product.title = title;
-                product.price = details.price;
-                product.seller = details.seller;
-                product.status = details.status;
-                product.image = details.img;
-                product.isPromo = promo == "on" ? true : false;
-                try {
-                    await product.save();
-                    res.render('description',{
-                        title: 'Product Description',
-                        product: product,
-                        about: details.about,
-                        description: details.description
-                      });
-                } catch (ex) {
-                    console.log(ex.message)
-                }
-            })();
-        } else {
-            res.render('edit_product',{
-              product: product
-            })
-        }
-    })
-})
+    let errors = [];
 
+    if(!asin){
+        errors.push({msg:'Asin is require'});
+    }
+    if(!title){
+        errors.push({msg:'Title is require'});
+    }    
+
+    if(errors.length > 0){
+        res.render('get',{
+            title: 'Get Product',
+            errors: errors
+        });
+    } else{
+        Product.findOne({asin}, (err, product) => {
+            if (_.isEmpty(product)) {
+                (async() => {
+                    try {
+                        let details = await getProductDetail(asin);
+                        let product = new Product();
+                        product.asin = asin;
+                        product.title = title;
+                        product.price = details.price;
+                        product.seller = details.seller;
+                        product.status = details.status;
+                        product.image = details.img;
+                        product.isPromo = promo == "on" ? true : false;
+                        try {
+                            await product.save();
+                            req.flash('success','Get Product Successful')
+                            res.render('description',{
+                                title: 'Product Description',
+                                product: product,
+                                about: details.about,
+                                description: details.description
+                            });
+                        } catch (ex) {
+                            console.log(ex.message)
+                        }
+                    } catch (err) {
+                        let errMessage = err.options.url + ' ' + err.statusCode + ' Not Found';
+                        errors.push({msg: errMessage})
+                        return res.render('get',{
+                            title: 'Get Product',
+                            errors: errors
+                        });
+                    }
+                })();
+            } else {
+                req.flash('warning','Product have been already added');
+                res.render('edit_product',{
+                    product: product
+                })
+            }
+        })
+    }
+})
 
 //Get Single Product Route
 app.get('/product/:asin', (req, res) => {
@@ -113,7 +155,8 @@ app.post('/product/:asin', (req, res) =>{
             console.log(err);
             return;
         } else{
-        res.redirect('/');
+            req.flash('success','Product Updated.')
+            res.redirect('/');
         }
     });
 });
@@ -124,7 +167,8 @@ app.delete('/product/:asin',(req, res) => {
         if(err){
             console.log(err);
         }
-        res.send('Success');
+        req.flash('success','Deleted.');
+        res.redirect('/');
     });
 });
 
@@ -139,6 +183,7 @@ app.get('/products/checkprice',(req, res) => {
 app.get('/products/checkpromo',(req, res) => {
     (async () => {
         await checkPromoCode();
+        res.sendStatus(200);
     })()
 })
 
@@ -157,10 +202,6 @@ async function getProductDetail (asin) {
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36'
         },
         gzip: true
-    }).catch(err => {
-        let errMessage = err.options.url + ' ' + err.statusCode + ' Not Found';
-        console.log(errMessage);
-        return errMessage;
     });
     const $ = cheerio.load(res);
     const img = $('#imgTagWrapperId > img').attr('data-old-hires');
@@ -662,24 +703,26 @@ async function checkPromoCode () {
                 await page.goto(`https://www.amazon.com/dp/${asin}`);
                 try {
                     await page.click('input[id="add-to-cart-button"]');
+                    await page.waitFor(2000);
                     await page.goto('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart');
                     await page.click('div[class="sc-proceed-to-checkout"]');
-                    await page.waitFor('span[id="shipToThisAddressButton"]');
-                    await page.click('span[id="shipToThisAddressButton"]');
-                    await page.waitFor('td[class="a-color-price a-size-medium a-text-right a-align-bottom aok-nowrap grand-total-price a-text-bold"]');
-                    const pricepromo = await page.evaluate(() => {
-                        return /[^$]+/g.exec(document.querySelector('td[class="a-color-price a-size-medium a-text-right a-align-bottom aok-nowrap grand-total-price a-text-bold"]').innerText)[0];
-                    });
-                    await page.waitFor('div[class="a-row a-spacing-micro payment-marketplace"], label[for="pm_gc_checkbox"]');
-                    const giftcard = await page.evaluate(() => {
-                        return /[0-9,\.]+/g.exec(document.querySelector('div[class="a-row a-spacing-micro payment-marketplace"], label[for="pm_gc_checkbox"]').innerText.trim())[0];
-                    });
-                    if (parseFloat(productsPromo[i].price) <= (parseFloat(pricepromo)+parseFloat(giftcard))) {
-                        await sendEmail('Code het han',undefined,undefined,asin);
-                    } 
-                    await page.goto('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart');
-                    await page.waitFor('span[class="a-size-small sc-action-delete"]');
-                    await page.click('span[class="a-size-small sc-action-delete"]');
+                    if(await page.$('span[id="shipToThisAddressButton"]') !== null){
+                        await page.click('span[id="shipToThisAddressButton"]');
+                    } else {
+                        await page.waitFor('td[class="a-color-price a-size-medium a-text-right a-align-bottom aok-nowrap grand-total-price a-text-bold"]');
+                        const pricepromo = await page.evaluate(() => {
+                            return /[^$]+/g.exec(document.querySelector('td[class="a-color-price a-size-medium a-text-right a-align-bottom aok-nowrap grand-total-price a-text-bold"]').innerText)[0];
+                        });
+                        const giftcard = await page.evaluate(() => {
+                            return /[0-9,\.]+/g.exec(document.querySelector('div[class="a-row a-spacing-micro payment-marketplace"], label[for="pm_gc_checkbox"]').innerText.trim())[0];
+                        });
+                        if (parseFloat(productsPromo[i].price) <= (parseFloat(pricepromo)+parseFloat(giftcard))) {
+                            await sendEmail('Code het han',asin);
+                        } 
+                        await page.goto('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart');
+                        await page.waitFor('span[class="a-size-small sc-action-delete"]');
+                        await page.click('span[class="a-size-small sc-action-delete"]');
+                    }
                 } catch (e) {
                     console.log(e);
                 }
