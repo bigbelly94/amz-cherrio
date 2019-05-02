@@ -255,10 +255,11 @@ async function checkPrice() {
         } catch (error) {
             if (error) {
                 await sendEmail('SẢN PHẨM KHÔNG TỒN TẠI', products[i].price,undefined,products[i].asin);
+                continue;
             }
+            
             console.log(error);
         }
-        
     };
     console.log('Update Complete');
 };
@@ -301,7 +302,7 @@ async function checkPromoCode () {
     var productsPromo = await Product.find({ isPromo: true });
     if (!_.isEmpty(productsPromo)){
         browser = await puppeteer.launch({
-            headless: false,
+            headless: true,
             defaultViewport: false
         });
         page = await browser.newPage();
@@ -709,23 +710,23 @@ async function checkPromoCode () {
                     await page.waitFor(2000);
                     await page.goto('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart');
                     await page.click('div[class="sc-proceed-to-checkout"]');
+                    await page.waitFor(2000);
                     if(await page.$('span[id="shipToThisAddressButton"]') !== null){
                         await page.click('span[id="shipToThisAddressButton"]');
-                    } else {
-                        await page.waitFor('td[class="a-color-price a-size-medium a-text-right a-align-bottom aok-nowrap grand-total-price a-text-bold"]');
-                        const pricepromo = await page.evaluate(() => {
-                            return /[^$]+/g.exec(document.querySelector('td[class="a-color-price a-size-medium a-text-right a-align-bottom aok-nowrap grand-total-price a-text-bold"]').innerText)[0];
-                        });
-                        const giftcard = await page.evaluate(() => {
-                            return /[0-9,\.]+/g.exec(document.querySelector('div[class="a-row a-spacing-micro payment-marketplace"], label[for="pm_gc_checkbox"]').innerText.trim())[0];
-                        });
-                        if (parseFloat(productsPromo[i].price) <= (parseFloat(pricepromo)+parseFloat(giftcard))) {
-                            await sendEmail('Code het han',asin);
-                        } 
-                        await page.goto('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart');
-                        await page.waitFor('span[class="a-size-small sc-action-delete"]');
-                        await page.click('span[class="a-size-small sc-action-delete"]');
-                    }
+                    } 
+                    await page.waitFor('td[class="a-color-price a-size-medium a-text-right a-align-bottom aok-nowrap grand-total-price a-text-bold"]');
+                    const pricepromo = await page.evaluate(() => {
+                        return /[^$]+/g.exec(document.querySelector('td[class="a-color-price a-size-medium a-text-right a-align-bottom aok-nowrap grand-total-price a-text-bold"]').innerText)[0];
+                    });
+                    const giftcard = await page.evaluate(() => {
+                        return /[0-9,\.]+/g.exec(document.querySelector('div[class="a-row a-spacing-micro payment-marketplace"], label[for="pm_gc_checkbox"]').innerText.trim())[0];
+                    });
+                    if (parseFloat(productsPromo[i].price) <= (parseFloat(pricepromo)+parseFloat(giftcard))) {
+                        await sendEmail('Code het han',productsPromo[i].price,undefined,asin);
+                    } 
+                    await page.goto('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart');
+                    await page.waitFor('span[class="a-size-small sc-action-delete"]');
+                    await page.click('span[class="a-size-small sc-action-delete"]');
                 } catch (e) {
                     console.log(e);
                 }
