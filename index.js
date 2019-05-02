@@ -180,55 +180,47 @@ app.get('/products/checkpromo',(req, res) => {
 
 //Func get Product Detail
 async function getProductDetail (asin) {
-    try {
-        const URL = `https://www.amazon.com/dp/${asin}`;
-        const res = await request({
-            url: URL,
-            headers: {
-                'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-                'accept-encoding': 'gzip, deflate, br',
-                'accept-language': 'vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7,zh-TW;q=0.6,zh-CN;q=0.5,zh;q=0.4',
-                'cache-control': 'max-age=0',
-                'cookie': 'ubid-main=132-0890182-3045412; session-id-time=2082787201l; session-id=144-4073134-0536961; x-wl-uid=1sc+T2vBUVT2WskxcBFhfwiC7usHYi5iyF8I8aBT47IvfU7VBS+AaHnY4Tsn7GWUT0kMoWd6vxLqG1iPqaPIUkw==; lc-main=en_US; s_vnum=1986801149381%26vn%3D1; s_nr=1554801199349-New; s_dslv=1554801199352; UserPref=dz/dpOf/IfKXl92egdxW6ztCasLS12Z2RsQrqNAyMJnBAycQ0rYO0f59LIRY/KnP+00SVQRNVa3U0s5VCBTB3UgSzzvt7ojb6dNFa5/ennJ8di6PMTxtML7X1aJPF9u43hOzDZdoRX+UgekJjVKNYZEmUT8pGJMnamd4RTtYlugpnqqYZtnPPOZoZSNw85ZoUops0gfxYHAfXZ+3LZ+g6k0RMP1AI6jbyYQ/6essBfF4kcS/gTAQp5MCjGXdfIRBkFzsoSbKOgSIVmV3dOuBj6uAo+LB1y959P9/VtIrFWB9K/K2NRpfaAGD5rJgVATo8sWOlzzMTLiHMX1bIf3+Jde6dJLzc7UQOTSdKcwv4EndXktn5bn50ECk34AoTpgBG0SOJu9R1S3WWWjRX5q8PFiKs/VObszUIGvRbBWlNxBGpc9PF0RycSe760IzVFiw; x-main="dMBuMpCwKePVm64FuugIQd8a7eDWIEJKoiTPp@9XDzlmy7gCz6@Q0Q5yAlgHf@e9"; at-main=Atza|IwEBIOvbK7DojmxAwBPRYQu9gye-oJRx946Lc2Os5zKMhw8jCVy3FeoYMfokSOcYKzB4v7nFoasMOmaus5JX4EcTaEdsxmBr9Gibz6PGS1iRWwlfj8hoLoaZzS7azhVkkGJnvmN2QJmwQCq31LhBbZ62Cv-2MBaZkrQVj-NS_H9Va--WBy_eq8MOvbWhMMBIKZhasz2D8rVLyJsViFLc2X7jx4iZ30rd86DXs2CHHEOHSUdtL_hu4ndWQ130-9KOKlTvNAWK0JNNE-Dz1We27lIR0SqkQAaW5Wvnj8sgHmDabKf-51R3pCaL4Adaxs01iRTBUFlEgrsLqSQBBSMeTQiojf5yqQZhUN7JBO2r7hoqwEe7-dLFtIl86U7jKxa8XBfI0yY73m5k10zD5Uhxp5ASpxMh; sess-at-main="UuPQtgLFfDAaPX0wJ1p7II+hs4jSBe2jez8gv5iUoRc="; sst-main=Sst1|PQGRJPdz5Sh45auqto9qb9EzC_-2hCR666L50bEGP0HnG7R1bmtZkR-ucZLsyE0JUwZKXD1pG4IDfUEhiq7kTPb1K77uLDzk_3_c8D_PzgaiTYPmR5OPYlhNja0eKIhVxJYmcNQhcxpZ5sAmaqSzsyL-qBrTfkR7yjgakUn-aVyEgc9O5LrRgyHTyRfvKIPMJHYbndzYd6sT6zS3RmyXvbF9Yfw-GU1A5wUcfiQBOWALfdH_Vvxc5OCV5v6l2211jWSxQX8b4R0YFiM0HlV0ewJNYPu4ofxEVsnHQZtPMIqAthXgPIA7fLhtW2cmGNGRUUzb8C77Kf7HlIY5KHCEm-sHJg; i18n-prefs=USD; session-token="24/sqQUuNOk7vrGkLICU1j8NIVK+njOTDVsDmE8LTFTGJ74lwKKdyLFRNKG055wCz13hW1fnbRAVSAITbg7yHQeeTZr5NARzWgWWvLkU5UvtcSEhFyB+/22zWAOrwGvwePvJK+ZcPJplzvkmXsFmn0BSuCWFpsgl7l7wne4Jhc2aT06IM5tHzdkJZ5xHXTdUhk6JdebLU6QNyIplH+k9f2nzfXNQrN+JCSzVxB72B5id6R69uE5+7zV/VzwuElo/E1ejMHd5DeC5bH4VFSIboA=="; csm-hit=tb:CXBPW49NCXZ24FHC4JMC+s-7X8KH90ADDN5E1BXWFZ6|1555040947006&t:1555040947006&adb:adblk_no',
-                'upgrade-insecure-requests': '1',
-                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36'
-            },
-            gzip: true,
-            resolveWithFullResponse: true
-        });
-        if(res.statusCode == 200){
-            const $ = cheerio.load(res);
-            const img = $('#imgTagWrapperId > img').attr('data-old-hires');
-            const status = $('#availability').text().trim();
-            let price, seller;
-            if (!status.includes('Available from these sellers.') && !status.includes('Currently unavailable.')) {
-                price = /[^$]+/g.exec($('#priceblock_ourprice, #priceblock_dealprice, #priceblock_saleprice').text().trim())[0];
-                seller = $('#merchant-info').text().trim();
-            };
-            const about = [];
-            let arr = $('ul[class="a-unordered-list a-vertical a-spacing-none"] > li, ul[class="a-unordered-list a-vertical a-spacing-none collapsedFeatureBullets"] > li');
-            let i = 0;
-            let len = arr.length;
-            for (i; i < len; i++) {
-                about.push($(arr[i]).text().trim());
-            };
-        
-            let description = $('div[id="productDescription"]');
-            description = !_.isEmpty(description) ? $(description[0]).html().trim() : "";
-        
-            return {
-                price,
-                status,
-                seller,
-                img,
-                asin,
-                about,
-                description
-            }
-        }
-    } catch (error) {
-        console.log(error.statusCode)
-    }
+    const URL = `https://www.amazon.com/dp/${asin}`;
+    const res = await request({
+        url: URL,
+        headers: {
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7,zh-TW;q=0.6,zh-CN;q=0.5,zh;q=0.4',
+            'cache-control': 'max-age=0',
+            'cookie': 'ubid-main=132-0890182-3045412; session-id-time=2082787201l; session-id=144-4073134-0536961; x-wl-uid=1sc+T2vBUVT2WskxcBFhfwiC7usHYi5iyF8I8aBT47IvfU7VBS+AaHnY4Tsn7GWUT0kMoWd6vxLqG1iPqaPIUkw==; lc-main=en_US; s_vnum=1986801149381%26vn%3D1; s_nr=1554801199349-New; s_dslv=1554801199352; UserPref=dz/dpOf/IfKXl92egdxW6ztCasLS12Z2RsQrqNAyMJnBAycQ0rYO0f59LIRY/KnP+00SVQRNVa3U0s5VCBTB3UgSzzvt7ojb6dNFa5/ennJ8di6PMTxtML7X1aJPF9u43hOzDZdoRX+UgekJjVKNYZEmUT8pGJMnamd4RTtYlugpnqqYZtnPPOZoZSNw85ZoUops0gfxYHAfXZ+3LZ+g6k0RMP1AI6jbyYQ/6essBfF4kcS/gTAQp5MCjGXdfIRBkFzsoSbKOgSIVmV3dOuBj6uAo+LB1y959P9/VtIrFWB9K/K2NRpfaAGD5rJgVATo8sWOlzzMTLiHMX1bIf3+Jde6dJLzc7UQOTSdKcwv4EndXktn5bn50ECk34AoTpgBG0SOJu9R1S3WWWjRX5q8PFiKs/VObszUIGvRbBWlNxBGpc9PF0RycSe760IzVFiw; x-main="dMBuMpCwKePVm64FuugIQd8a7eDWIEJKoiTPp@9XDzlmy7gCz6@Q0Q5yAlgHf@e9"; at-main=Atza|IwEBIOvbK7DojmxAwBPRYQu9gye-oJRx946Lc2Os5zKMhw8jCVy3FeoYMfokSOcYKzB4v7nFoasMOmaus5JX4EcTaEdsxmBr9Gibz6PGS1iRWwlfj8hoLoaZzS7azhVkkGJnvmN2QJmwQCq31LhBbZ62Cv-2MBaZkrQVj-NS_H9Va--WBy_eq8MOvbWhMMBIKZhasz2D8rVLyJsViFLc2X7jx4iZ30rd86DXs2CHHEOHSUdtL_hu4ndWQ130-9KOKlTvNAWK0JNNE-Dz1We27lIR0SqkQAaW5Wvnj8sgHmDabKf-51R3pCaL4Adaxs01iRTBUFlEgrsLqSQBBSMeTQiojf5yqQZhUN7JBO2r7hoqwEe7-dLFtIl86U7jKxa8XBfI0yY73m5k10zD5Uhxp5ASpxMh; sess-at-main="UuPQtgLFfDAaPX0wJ1p7II+hs4jSBe2jez8gv5iUoRc="; sst-main=Sst1|PQGRJPdz5Sh45auqto9qb9EzC_-2hCR666L50bEGP0HnG7R1bmtZkR-ucZLsyE0JUwZKXD1pG4IDfUEhiq7kTPb1K77uLDzk_3_c8D_PzgaiTYPmR5OPYlhNja0eKIhVxJYmcNQhcxpZ5sAmaqSzsyL-qBrTfkR7yjgakUn-aVyEgc9O5LrRgyHTyRfvKIPMJHYbndzYd6sT6zS3RmyXvbF9Yfw-GU1A5wUcfiQBOWALfdH_Vvxc5OCV5v6l2211jWSxQX8b4R0YFiM0HlV0ewJNYPu4ofxEVsnHQZtPMIqAthXgPIA7fLhtW2cmGNGRUUzb8C77Kf7HlIY5KHCEm-sHJg; i18n-prefs=USD; session-token="24/sqQUuNOk7vrGkLICU1j8NIVK+njOTDVsDmE8LTFTGJ74lwKKdyLFRNKG055wCz13hW1fnbRAVSAITbg7yHQeeTZr5NARzWgWWvLkU5UvtcSEhFyB+/22zWAOrwGvwePvJK+ZcPJplzvkmXsFmn0BSuCWFpsgl7l7wne4Jhc2aT06IM5tHzdkJZ5xHXTdUhk6JdebLU6QNyIplH+k9f2nzfXNQrN+JCSzVxB72B5id6R69uE5+7zV/VzwuElo/E1ejMHd5DeC5bH4VFSIboA=="; csm-hit=tb:CXBPW49NCXZ24FHC4JMC+s-7X8KH90ADDN5E1BXWFZ6|1555040947006&t:1555040947006&adb:adblk_no',
+            'upgrade-insecure-requests': '1',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36'
+        },
+        gzip: true,
+    });
+    const $ = cheerio.load(res);
+    const img = $('#imgTagWrapperId > img').attr('data-old-hires');
+    const status = $('#availability').text().trim();
+    let price, seller;
+    if (!status.includes('Available from these sellers.') && !status.includes('Currently unavailable.')) {
+        price = /[^$]+/g.exec($('#priceblock_ourprice, #priceblock_dealprice, #priceblock_saleprice').text().trim())[0];
+        seller = $('#merchant-info').text().trim();
+    };
+    const about = [];
+    let arr = $('ul[class="a-unordered-list a-vertical a-spacing-none"] > li, ul[class="a-unordered-list a-vertical a-spacing-none collapsedFeatureBullets"] > li');
+    let i = 0;
+    let len = arr.length;
+    for (i; i < len; i++) {
+        about.push($(arr[i]).text().trim());
+    };
+
+    let description = $('div[id="productDescription"]');
+    description = !_.isEmpty(description) ? $(description[0]).html().trim() : "";
+    return {
+        price,
+        status,
+        seller,
+        img,
+        asin,
+        about,
+        description
+    }      
 };
 
 //Func Get Product
