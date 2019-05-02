@@ -14,7 +14,7 @@ block content
         each product in products
             div.shadow-sm.p-3.mb-2.bg-white.rounded 
                 li.media
-                    img.mr-3(src=product.image,height='64', width='64')
+                    img.mr-3(src=product.images[0],height='64', width='64')
                     .media-body
                         a.mt-0(href="/product/"+product.asin)= product.title
                         div ASIN: #{product.asin} &emsp;&emsp;

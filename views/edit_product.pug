@@ -3,7 +3,7 @@ extends layout
 block content
     br
 
-    img(src=product.image, width='30%')
+    img(src=product.images[0], width='30%')
 
     form(method = 'POST', action='/product/'+product.asin)
         .form-group.row

@@ -16,7 +16,9 @@ const productSchema = mongoose.Schema({
   },
   price: Number,
   seller: String,
-  image: String,
+  images: {
+    type: [String]
+  },
   date: {
     type: Date,
     default: Date.now

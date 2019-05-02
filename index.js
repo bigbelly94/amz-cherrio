@@ -95,7 +95,7 @@ app.post('/products/get',(req, res) => {
                     product.price = details.price;
                     product.seller = details.seller;
                     product.status = details.status;
-                    product.image = details.img;
+                    product.images = details.imgs;
                     product.isPromo = promo == "on" ? true : false;
                     try {
                         await product.save();
@@ -196,7 +196,21 @@ async function getProductDetail (asin) {
             gzip: true
         });
         const $ = cheerio.load(res);
-        const img = $('#imgTagWrapperId > img').attr('data-old-hires');
+        let d1 = $('script[type="text/javascript"]');
+        let d2;
+        let i = 0;
+        let d1len = d1.length;
+        for (i; i < d1len; i++) {
+            if (d1[i].firstChild.data.includes(`'colorImages': { 'initial':`)) {
+                d2 = d1[i].firstChild.data;
+            };
+        };
+        let d3 = JSON.parse((/\[{"hiRes":(.+)]/gm.exec(d2))[0]);
+        let imgs = [];
+        d3.forEach(function(img) {
+            const urlImg = img.hiRes != null ? img.hiRes : img.large;
+            imgs.push(urlImg);
+        });
         const status = $('#availability').text().trim();
         let price, seller;
         if (!status.includes('Available from these sellers.') && !status.includes('Currently unavailable.')) {
@@ -205,20 +219,19 @@ async function getProductDetail (asin) {
         };
         const about = [];
         let arr = $('ul[class="a-unordered-list a-vertical a-spacing-none"] > li, ul[class="a-unordered-list a-vertical a-spacing-none collapsedFeatureBullets"] > li');
-        let i = 0;
         let len = arr.length;
-        for (i; i < len; i++) {
-            about.push($(arr[i]).text().trim());
+        for (i=1; i < len; i++) {
+            about.push($.text($(arr[i])).trim());
         };
     
         let description = $('div[id="productDescription"]');
-        description = !_.isEmpty(description) ? $(description[0]).html().trim() : "";
+        description = !_.isEmpty(description) ? $.html($(description[0])).trim() : "";
     
         return {
             price,
             status,
             seller,
-            img,
+            imgs,
             asin,
             about,
             description
