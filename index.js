@@ -315,7 +315,7 @@ async function checkPromoCode () {
     var productsPromo = await Product.find({ isPromo: true });
     if (!_.isEmpty(productsPromo)){
         browser = await puppeteer.launch({
-            headless: false,
+            headless: true,
             defaultViewport: false
         });
         page = await browser.newPage();
