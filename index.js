@@ -214,7 +214,7 @@ async function getProductDetail (asin) {
         const status = $('#availability').text().trim();
         let price, seller;
         if (!status.includes('Available from these sellers.') && !status.includes('Currently unavailable.')) {
-            price = /[^$]+/g.exec($('#priceblock_ourprice, #priceblock_dealprice, #priceblock_saleprice').text().trim())[0];
+            price = /[^$]+/g.exec($('#priceblock_ourprice, #priceblock_dealprice, #priceblock_saleprice, #priceblock_businessprice').text().trim())[0];
             seller = $('#merchant-info').text().trim();
         };
         const about = [];
@@ -315,7 +315,7 @@ async function checkPromoCode () {
     var productsPromo = await Product.find({ isPromo: true });
     if (!_.isEmpty(productsPromo)){
         browser = await puppeteer.launch({
-            headless: true,
+            headless: false,
             defaultViewport: false
         });
         page = await browser.newPage();
@@ -720,21 +720,15 @@ async function checkPromoCode () {
                 await page.goto(`https://www.amazon.com/dp/${asin}`);
                 try {
                     await page.click('input[id="add-to-cart-button"]');
-                    await page.waitFor(2000);
+                    await page.waitFor(1000);
                     await page.goto('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart');
                     await page.click('div[class="sc-proceed-to-checkout"]');
+                    await page.waitFor('span[class="a-button a-button-primary continue-button continue-button-desktop"]') ;
+                    await page.click('span[class="a-button a-button-primary continue-button continue-button-desktop"]') ;
+                    await page.waitFor('a[class="a-declarative a-button-text "]');
+                    await page.click('a[class="a-declarative a-button-text "]');
                     await page.waitFor(2000);
-                    if(await page.$('span[id="shipToThisAddressButton"]') !== null){
-                        await page.click('span[id="shipToThisAddressButton"]');
-                    } 
-                    await page.waitFor('td[class="a-color-price a-size-medium a-text-right a-align-bottom aok-nowrap grand-total-price a-text-bold"]');
-                    const pricepromo = await page.evaluate(() => {
-                        return /[^$]+/g.exec(document.querySelector('td[class="a-color-price a-size-medium a-text-right a-align-bottom aok-nowrap grand-total-price a-text-bold"]').innerText)[0];
-                    });
-                    const giftcard = await page.evaluate(() => {
-                        return /[0-9,\.]+/g.exec(document.querySelector('div[class="a-row a-spacing-micro payment-marketplace"], label[for="pm_gc_checkbox"]').innerText.trim())[0];
-                    });
-                    if (parseFloat(productsPromo[i].price) <= (parseFloat(pricepromo)+parseFloat(giftcard))) {
+                    if(await page.$('span[class="a-text-strike"]') == null){
                         await sendEmail('Code het han',productsPromo[i].price,undefined,asin);
                     } 
                     await page.goto('https://www.amazon.com/gp/cart/view.html?ref_=nav_cart');
